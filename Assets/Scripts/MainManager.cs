@@ -44,10 +44,16 @@ public class MainManager : MonoBehaviour
             }
         }
         LoadMaxScore();
+        AddPoint(0); //Update userName on scoretext
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("Menu");
+        }
+
         if (!m_Started)
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -67,17 +73,13 @@ public class MainManager : MonoBehaviour
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
-            else if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                SceneManager.LoadScene("Menu");
-            }
         }
     }
 
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        ScoreText.text = $"{ApplicationManager.userName} Score : {m_Points}";
     }
 
     public void GameOver()
@@ -89,13 +91,14 @@ public class MainManager : MonoBehaviour
 
     private class MaxScoreData
     {
+        public string userName;
         public int score;
     }
 
-    void SetMaxScore(int score)
+    void SetMaxScore(MaxScoreData maxScore)
     {
-        m_MaxScore = score;
-        BestScoreText.text = $"Best Score : {m_MaxScore}";
+        m_MaxScore = maxScore.score;
+        BestScoreText.text = $"Best Score : {maxScore.userName} : {maxScore.score}";
     }
 
     public void SaveMaxScore()
@@ -105,6 +108,7 @@ public class MainManager : MonoBehaviour
             m_MaxScore = m_Points;            
             MaxScoreData maxScore = new MaxScoreData();
             maxScore.score = m_MaxScore;
+            maxScore.userName = ApplicationManager.userName;
             string jsonString = JsonUtility.ToJson(maxScore);
             File.WriteAllText(maxScorePath, jsonString);
         }
@@ -116,7 +120,7 @@ public class MainManager : MonoBehaviour
         {
             string jsonFile = File.ReadAllText(maxScorePath);
             MaxScoreData maxScore = JsonUtility.FromJson<MaxScoreData>(jsonFile);
-            SetMaxScore(maxScore.score);
+            SetMaxScore(maxScore);
         }
 
     }
@@ -127,6 +131,6 @@ public class MainManager : MonoBehaviour
         {
             File.Delete(maxScorePath);            
         }catch { }
-        SetMaxScore(0);
+        SetMaxScore(new MaxScoreData());
     }
 }
