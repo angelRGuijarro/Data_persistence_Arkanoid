@@ -5,6 +5,7 @@ using UnityEngine;
 public class Paddle : MonoBehaviour
 {
     public float Speed = 2.0f;
+    //max position on x axis
     public float MaxMovement = 2.0f;
     
     // Start is called before the first frame update

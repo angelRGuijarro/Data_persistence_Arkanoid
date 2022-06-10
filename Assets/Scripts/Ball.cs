@@ -20,9 +20,11 @@ public class Ball : MonoBehaviour
         velocity += velocity.normalized * 0.01f;
         
         //check if we are not going totally vertically as this would lead to being stuck, we add a little vertical force
+        //NEEDS HORIZONTAL FORCE
         if (Vector3.Dot(velocity.normalized, Vector3.up) < 0.1f)
         {
-            velocity += velocity.y > 0 ? Vector3.up * 0.5f : Vector3.down * 0.5f;
+            //velocity += velocity.y > 0 ? Vector3.up * 0.5f : Vector3.down * 0.5f;
+            velocity += velocity.y > 0 ? Vector3.right* 0.1f : Vector3.left * 0.1f;
         }
 
         //max velocity
