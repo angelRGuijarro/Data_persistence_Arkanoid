@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
@@ -11,17 +12,23 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text BestScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
+    private int m_MaxScore;
     
     private bool m_GameOver = false;
 
-    
+    private string maxScorePath;
+
+
     // Start is called before the first frame update
     void Start()
     {
+        maxScorePath =  Application.persistentDataPath + "/maxScore.json";
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -36,6 +43,7 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        LoadMaxScore();
     }
 
     private void Update()
@@ -76,5 +84,49 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        SaveMaxScore();
+    }
+
+    private class MaxScoreData
+    {
+        public int score;
+    }
+
+    void SetMaxScore(int score)
+    {
+        m_MaxScore = score;
+        BestScoreText.text = $"Best Score : {m_MaxScore}";
+    }
+
+    public void SaveMaxScore()
+    {
+        if (m_Points > m_MaxScore)
+        {
+            m_MaxScore = m_Points;            
+            MaxScoreData maxScore = new MaxScoreData();
+            maxScore.score = m_MaxScore;
+            string jsonString = JsonUtility.ToJson(maxScore);
+            File.WriteAllText(maxScorePath, jsonString);
+        }
+    }
+
+    public void LoadMaxScore()
+    {        
+        if (File.Exists(maxScorePath))
+        {
+            string jsonFile = File.ReadAllText(maxScorePath);
+            MaxScoreData maxScore = JsonUtility.FromJson<MaxScoreData>(jsonFile);
+            SetMaxScore(maxScore.score);
+        }
+
+    }
+
+    public void ResetMaxScore()
+    {
+        try
+        {
+            File.Delete(maxScorePath);            
+        }catch { }
+        SetMaxScore(0);
     }
 }
